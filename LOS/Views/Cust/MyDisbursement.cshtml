@@ -1,0 +1,49 @@
+@model LOS.Models.Disbursement
+@{
+    Layout = "~/Views/Shared/_LoanLayout.cshtml";
+    ViewData["Title"] = "Disbursement Details";
+}
+
+<h2>Disbursement Details</h2>
+<hr />
+
+@if (Model == null)
+{
+    <div class="alert alert-warning">
+        Loan disbursement has not been done yet. Please wait for the officer to disburse your loan amount.
+    </div>
+}
+else
+{
+    <div class="card shadow p-4" style="max-width:600px;">
+
+        <p><b>Disbursement ID :</b> @Model.DisbursementId</p>
+        <p><b>Disbursement Date :</b> @Model.DisbursementDate.ToString("dd-MMM-yyyy")</p>
+        <p><b>Customer Name :</b> @ViewBag.CustomerName</p>
+        <p><b>Disbursed Amount :</b> ₹ @Model.DisbursedAmount.ToString("N2")</p>
+        <p><b>Bank Name :</b> @Model.BankName</p>
+
+        @if (ViewBag.LoanType != null)
+        {
+            <p><b>Loan Type :</b> @ViewBag.LoanType</p>
+        }
+        @if (ViewBag.Tenure != null)
+        {
+            <p><b>Tenure :</b> @ViewBag.Tenure Months</p>
+        }
+        @if (ViewBag.EMI != null)
+        {
+            <p><b>Monthly EMI :</b> ₹ @ViewBag.EMI</p>
+        }
+
+        <p>
+            <b>Status :</b>
+            <span style="color:green">@Model.DisbursementStatus</span>
+        </p>
+
+        <hr />
+
+        <button onclick="window.print()" class="btn btn-success">Print</button>
+
+    </div>
+}

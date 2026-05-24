@@ -1,0 +1,160 @@
+﻿@model List<LOS.Models.Deal>
+
+@{
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+    var officerName = Context.Session.GetString("OfficerName") ?? "Officer";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h3>Loan Applicants</h3>
+            <span class="fw-bold">Welcome, @officerName</span>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover" id="mytable">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Deal ID</th>
+                        <th>Loan ID</th>
+                        <th>Customer</th>
+                        <th>Loan Type</th>
+                        <th>Requested Amount</th>
+                        <th>Approved Amount</th>
+                        <th>Tenure</th>
+                        <th>Interest Rate</th>
+                        <th>EMI</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var deal in Model)
+                    {
+                        <tr>
+                            <td>@deal.DealId</td>
+                            <td>@deal.LoanId</td>
+                            <td>@deal.Loan.Customer.FirstName</td>
+                            <td>@deal.Loan.LoanType</td>
+                            <td>₹@deal.RequestedAmount</td>
+                            <td>₹@deal.ApprovedAmount</td>
+                            <td>@deal.Tenure</td>
+                            <td>@deal.InterestRate %</td>
+                            <td>₹@deal.EMI</td>
+                            <td>
+                                @if (deal.Status == "Approved")
+                                {
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else if (deal.Status == "Rejected")
+                                {
+                                    <span class="badge bg-danger">Rejected</span>
+                                }
+                                else if (deal.Status == "Sanctioned")
+                                {
+                                    <span class="badge bg-primary">Sanctioned</span>
+                                }
+                                else if (deal.Status == "Disbursed")
+                                {
+                                    <span class="badge bg-info">Disbursed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+
+                            </td>
+                            <td>
+                                <a asp-action="Profile" asp-route-customerId="@deal.Loan.CustomerId"
+                                   class="btn btn-info btn-sm">Profile View</a>
+
+                                @if (deal.Status == "Approved")
+                                {
+                                    <a asp-controller="SanctionLetter"
+                                           asp-action="GenerateDirect"
+                                           asp-route-loanDealId="@deal.DealId"
+                                           class="btn btn-primary btn-sm ms-2">
+                                        Generate Sanction
+                                    </a>
+
+                                }
+                                else if (deal.Status == "Sanctioned")
+                                {
+                                    <span class="badge bg-primary ms-2">Sanctioned</span>
+                                }
+                                else if (deal.Status == "Disbursed")
+                                {
+                                    <span class="badge bg-info ms-2">Disbursed</span>
+                                }
+
+                               
+                            </td>
+                        </tr>
+
+                        <!-- Approve Modal -->
+                        <div class="modal fade" id="approveModal-@deal.DealId" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form asp-action="Approve" method="post">
+                                        <div class="modal-header bg-success text-white">
+                                            <h5 class="modal-title">Approve Loan</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <input type="hidden" name="dealId" value="@deal.DealId" />
+                                            <div class="mb-3">
+                                                <label class="form-label">Approved Amount</label>
+                                                <input type="number" name="approvedAmount" class="form-control"
+                                                       min="1000" max="@deal.RequestedAmount" required />
+                                                <small class="text-muted">Must not exceed requested amount (₹@deal.RequestedAmount)</small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-success">Submit Approval</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reject Modal -->
+                        <div class="modal fade" id="rejectModal-@deal.DealId" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form asp-action="Reject" method="post">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title">Reject Loan</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <input type="hidden" name="dealId" value="@deal.DealId" />
+                                            <div class="mb-3">
+                                                <label class="form-label">Reason for Rejection</label>
+                                                <textarea name="remarks" class="form-control" required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-danger">Submit Rejection</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="//cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
+    <link rel="stylesheet" href="//cdn.datatables.net/2.3.8/css/dataTables.dataTables.min.css" />
+
+    <script>
+        $(document).ready(function(){
+        new DataTable("#mytable");
+        });
+    </script>
+}

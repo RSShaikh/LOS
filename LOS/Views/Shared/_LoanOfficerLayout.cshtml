@@ -1,0 +1,144 @@
+@*
+    Views/Shared/_LoanOfficerLayout.cshtml - Admin Layout
+*@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Admin — Loan Origination System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: Arial, Helvetica, sans-serif; background: #f4f5fb; }
+
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(to bottom, #071b3b, #0d2a56);
+            position: fixed;
+            left: 0; top: 0;
+            padding-top: 0;
+            overflow-y: auto;
+        }
+        .sidebar .brand {
+            color: #ffcc00;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 20px 20px 8px;
+        }
+        .sidebar .brand-sub {
+            color: rgba(255,255,255,0.45);
+            font-size: 11px;
+            padding: 0 20px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 11px 22px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .sidebar a:hover {
+            background: rgba(255,204,0,0.12);
+            border-left: 3px solid #ffcc00;
+            color: #ffcc00;
+        }
+        .sidebar i { width: 18px; text-align: center; font-size: 14px; }
+        .sidebar .section-label {
+            color: rgba(255,255,255,0.3);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 14px 22px 4px;
+        }
+        .sidebar .logout-link {
+            color: #ff6b6b !important;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .main-content { margin-left: 260px; padding: 25px; }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .top-bar .page-title { font-size: 17px; font-weight: 600; color: #071b3b; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand"><i class="fa-solid fa-building-columns me-2"></i>LOS Banking</div>
+        <div class="brand-sub">Admin Panel</div>
+
+        <div class="section-label">Customer Management</div>
+        <a asp-controller="Admin" asp-action="Index">
+            <i class="fa-solid fa-users"></i> Customers
+        </a>
+        <a asp-controller="AdminKyc" asp-action="Index">
+            <i class="fa-solid fa-id-card"></i> KYC Documents
+        </a>
+
+        <div class="section-label">Loan Operations</div>
+        <a asp-controller="Eligibility" asp-action="EIndex">
+            <i class="fa-solid fa-circle-check"></i> Eligibility
+        </a>
+        <a asp-controller="ScoreCard" asp-action="Index">
+            <i class="fa-solid fa-chart-pie"></i> Score Card
+        </a>
+        <a asp-controller="Officer" asp-action="Dashboard">
+            <i class="fa-solid fa-file-circle-plus"></i> Loan Applications
+        </a>
+        <a asp-controller="SanctionLetter" asp-action="Index">
+            <i class="fa-solid fa-file-contract"></i> Sanction Letters
+        </a>
+        <a asp-controller="LoanDisbursement" asp-action="Index">
+            <i class="fa-solid fa-money-check-dollar"></i> Disbursement
+        </a>
+
+        <a href="/Auth/Logout" class="logout-link">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <span class="page-title">
+                <i class="fa-solid fa-shield-halved text-primary me-2"></i>@(ViewBag.PageTitle ?? "Admin Panel")
+            </span>
+            <span class="badge bg-danger rounded-pill px-3 py-2">
+                <i class="fa-solid fa-user-shield me-1"></i>Admin
+            </span>
+        </div>
+
+        @RenderBody()
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function searchTable() {
+            const input = document.getElementById("searchInput");
+            if (!input) return;
+            const val = input.value.toLowerCase();
+            const table = document.getElementById("dataTable");
+            if (!table) return;
+            table.querySelectorAll("tbody tr").forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(val) ? "" : "none";
+            });
+        }
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

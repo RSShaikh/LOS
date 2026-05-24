@@ -1,0 +1,152 @@
+@model LOS.ViewModel.TrackStatusViewModel
+@{
+    Layout = "~/Views/Shared/_LoanLayout.cshtml";
+    int completedSteps = Model.Steps.Count(s => s.IsCompleted);
+    int totalSteps = Model.Steps.Count;
+    int progressPercent = (int)((double)completedSteps / totalSteps * 100);
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    body { background: #f4f6f9; }
+
+    .main-box {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .stepper {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin: 30px 0 10px 0;
+    }
+
+    .stepper::before {
+        content: "";
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: #ddd;
+        z-index: 0;
+    }
+
+    .step { text-align: center; z-index: 1; flex: 1; }
+
+    .circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .green  { background: #28a745; }
+    .gray   { background: #adb5bd; }
+    .red    { background: #dc3545; }
+
+    .label { font-size: 13px; margin-top: 5px; font-weight: 500; }
+
+    .box {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+    }
+
+    .timeline {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .timeline li {
+        margin-bottom: 12px;
+        padding-left: 25px;
+        position: relative;
+    }
+
+    .timeline li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 20px;
+        color: #0d6efd;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+
+        <!-- LEFT: Stepper + Step Details -->
+        <div class="col-md-8">
+            <div class="main-box">
+                <h5 class="mb-3">Track Application</h5>
+
+                <!-- Progress Bar -->
+                <div class="progress mb-4">
+                    <div class="progress-bar bg-success" role="progressbar" style="width:@progressPercent%" aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100">
+                        @progressPercent% Complete
+                    </div>
+                </div>
+
+                <!-- STEPPER CIRCLES -->
+                <div class="stepper">
+                    @foreach (var step in Model.Steps)
+                    {
+                        string css = step.IsCompleted ? "green"
+                                   : step.IsRejected  ? "red"
+                                   : "gray";
+                        string icon = step.IsCompleted ? "✔"
+                                    : step.IsRejected  ? "✘"
+                                    : "●";
+                        <div class="step">
+                            <div class="circle @css">@icon</div>
+                            <div class="label">@step.Title</div>
+                        </div>
+                    }
+                </div>
+
+                <!-- STEP STATUS CARDS -->
+                <div class="mt-4">
+                    @foreach (var step in Model.Steps)
+                    {
+                        string alertClass = step.IsCompleted ? "alert-success"
+                                          : step.IsRejected  ? "alert-danger"
+                                          : "alert-warning";
+                        <div class="alert @alertClass mb-2">
+                            <strong>@step.Title:</strong> @step.Message
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Timeline -->
+        <div class="col-md-4">
+            <div class="box">
+                <h6 class="mb-3">Activity Timeline</h6>
+                <ul class="timeline">
+                    @foreach (var step in Model.Steps)
+                    {
+                        string icon = step.IsCompleted ? "✔" : step.IsRejected ? "✘" : "⏳";
+                        <li>@icon <strong>@step.Title</strong> — @step.Status</li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>

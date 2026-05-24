@@ -1,0 +1,218 @@
+﻿@model LOS.Models.Customer
+
+@{
+    ViewData["Title"] =
+    "CIBIL Check";
+
+    Layout =
+    "~/Views/Shared/_LoanLayout.cshtml";
+
+    bool kycApproved =
+    Model.KYCDocument != null
+    &&
+    Model.KYCDocument.Any(
+    x =>
+    x.VerificationStatus
+    ==
+    "Approved");
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+
+        @TempData["Error"]
+
+    </div>
+}
+
+<div class="container mt-4">
+
+    <h4>
+
+        CIBIL Score Dashboard
+
+    </h4>
+
+    <hr />
+
+    <div class="row">
+
+        <div class="col-md-6">
+
+            <div class="mb-3">
+
+                <label>
+
+                    Customer Name
+
+                </label>
+
+                <input class="form-control"
+                       value="@Model.FirstName @Model.LastName"
+                       readonly />
+
+            </div>
+
+            <div class="mb-3">
+
+                <label>
+
+                    PAN
+
+                </label>
+
+                <input class="form-control"
+                       value="@Model.PAN"
+                       readonly />
+
+            </div>
+
+            <div class="mb-3">
+
+                <label>
+
+                    Monthly Income
+
+                </label>
+
+                <input class="form-control"
+                       value="@Model.MonthlyIncome"
+                       readonly />
+
+            </div>
+
+            <div class="mb-3">
+
+                <label>
+
+                    Employment Type
+
+                </label>
+
+                <input class="form-control"
+                       value="@Model.EmploymentType"
+                       readonly />
+
+            </div>
+
+            <div class="mb-3">
+
+                <label>
+
+                    Age
+
+                </label>
+
+                <input class="form-control"
+                       value="@Model.Age"
+                       readonly />
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="card text-center p-4">
+
+                <h6>
+
+                    CIBIL Score
+
+                </h6>
+
+                @if (
+                Model.CibilReport != null
+                &&
+                Model.CibilReport.Any()
+                )
+                {
+                    var latest =
+                    Model.CibilReport
+                    .OrderByDescending(
+                    x =>
+                    x.CheckDate
+                    )
+                    .First();
+
+                    <h1>
+
+                        @latest.CibilScore
+
+                    </h1>
+
+                    <p>
+
+                        Last checked:
+
+                        @(latest.CheckDate
+                        .ToString(
+                        "dd MMM yyyy, hh:mm tt"
+                        ))
+
+                    </p>
+                }
+                else
+                {
+                    <p>
+
+                        No score generated yet
+
+                    </p>
+                }
+
+                <form asp-action="Generate"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+
+                        <label>
+
+                            Bank Balance
+
+                        </label>
+
+                        <input type="number"
+                               name="bankBalance"
+                               class="form-control"
+                               required />
+
+                    </div>
+
+                    @if (kycApproved)
+                    {
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            Generate CIBIL Score
+
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+
+                            Complete KYC and wait for officer approval
+
+                        </div>
+
+                        <button class="btn btn-secondary"
+                                type="button"
+                                disabled>
+                            Generate
+
+                        </button>
+                    }
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

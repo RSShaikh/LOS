@@ -1,0 +1,60 @@
+@model LOS.Models.SanctionLetter
+
+@{
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+    ViewData["Title"] = "Loan Sanction Letter";
+}
+
+<div class="container border p-4">
+    <h2 class="text-center">LOAN SANCTION LETTER</h2>
+    <hr />
+
+    <p>Date: <b>@Model.SanctionDate.ToShortDateString()</b></p>
+    <p>Sanction ID: <b>@Model.SanctionLetterId</b></p>
+    <p>Deal ID: <b>@Model.LoanDealId</b></p>
+
+    <p>
+        To,<br />
+        <b>@ViewBag.CustomerName</b><br />
+    </p>
+
+    <p>Dear <b>@ViewBag.CustomerName</b>,</p>
+
+    <p>We are pleased to inform you that your loan request has been approved with the following details:</p>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>Loan Details</th>
+            <th>Information</th>
+        </tr>
+        <tr>
+            <td>Approved Amount</td>
+            <td>₹ @Model.LoanAmount</td>
+        </tr>
+        <tr>
+            <td>Interest Rate</td>
+            <td>@Model.InterestRate %</td>
+        </tr>
+        <tr>
+            <td>Tenure</td>
+            <td>@Model.TenureMonths Months</td>
+        </tr>
+        <tr>
+            <td>EMI Amount</td>
+            <td>₹ @Model.EMIAmount</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td>@Model.Status</td>
+        </tr>
+    </table>
+
+    <br />
+    Borrower Signature<br /><br />
+    __________________<br /><br />
+    Authorized Signature<br /><br />
+    __________________<br /><br />
+
+    <button onclick="window.print()" class="btn btn-success">Print Letter</button>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

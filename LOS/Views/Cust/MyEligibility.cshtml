@@ -1,0 +1,68 @@
+﻿@model LOS.Models.EligibilityResult
+@{
+    ViewData["Title"] = "Eligibility Check";
+    Layout = "~/Views/Shared/_LoanLayout.cshtml";
+}
+
+<h2>Eligibility Check</h2>
+<hr />
+
+@if (ViewBag.KYCIncomplete == true)
+{
+    <div class="alert alert-warning">
+        Your KYC is incomplete. Please upload/approve all required documents.
+    </div>
+}
+
+@if (ViewBag.CibilNotChecked == true)
+{
+    <div class="alert alert-info">
+        You have not checked your CIBIL score yet.
+        <a asp-controller="Cibil" asp-action="Check">Click here to check your CIBIL score</a>.
+    </div>
+}
+
+@if (Model == null)
+{
+    <div class="alert alert-warning">
+        Eligibility check has not been done yet. Please complete your CIBIL check first.
+    </div>
+}
+else
+{
+    <h3>My Eligibility Result</h3>
+    <p><b>Customer Id :</b> @Model.CustomerId</p>
+    <p>
+        <b>Name :</b>
+        @Model.Customer.FirstName @Model.Customer.LastName
+    </p>
+    <p>
+        <b>CIBIL Score :</b> @Model.CibilScore
+    </p>
+    <p>
+        <b>Eligibility :</b>
+        @if (Model.IsEligible == true)
+        {
+            <span style="color:green">Eligible</span>
+        }
+        else if (Model.IsEligible == false)
+        {
+            <span style="color:red">Not Eligible</span>
+        }
+        else
+        {
+            <span style="color:orange">Pending Review</span>
+        }
+    </p>
+    <p>
+        <b>Reason :</b>
+        @if (string.IsNullOrEmpty(Model.RejectionReason))
+        {
+            <span>N/A</span>
+        }
+        else
+        {
+            @Model.RejectionReason
+        }
+    </p>
+}

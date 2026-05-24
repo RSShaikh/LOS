@@ -1,0 +1,51 @@
+@model LOS.Models.SanctionLetter
+@{
+    Layout = "~/Views/Shared/_LoanLayout.cshtml";
+    ViewData["Title"] = "My Sanction Letter";
+}
+
+<h2>My Sanction Letter</h2>
+<hr />
+
+@if (Model == null)
+{
+    <div class="alert alert-warning">
+        Sanction letter is not generated yet. Please wait for your loan to be approved and sanctioned by the officer.
+    </div>
+}
+else
+{
+    <div class="card shadow p-4" style="max-width:650px;">
+
+        <h4 class="text-center mb-3">LOAN SANCTION LETTER</h4>
+        <hr />
+
+        <p><b>Sanction ID :</b> @Model.SanctionLetterId</p>
+        <p><b>Date :</b> @Model.SanctionDate.ToString("dd-MMM-yyyy")</p>
+        <p><b>Customer Name :</b> @ViewBag.CustomerName</p>
+
+        <hr />
+
+        <p><b>Approved Amount :</b> ₹ @Model.LoanAmount.ToString("N2")</p>
+        <p><b>Interest Rate :</b> @Model.InterestRate % per annum</p>
+        <p><b>Tenure :</b> @Model.TenureMonths Months</p>
+        <p><b>Monthly EMI :</b> ₹ @Model.EMIAmount.ToString("N2")</p>
+        <p><b>Total Payable :</b> ₹ @((Model.EMIAmount * Model.TenureMonths).ToString("N2"))</p>
+        <p>
+            <b>Status :</b>
+            @if (Model.Status == "Disbursed")
+            {
+                <span style="color:green">@Model.Status</span>
+            }
+            else
+            {
+                <span style="color:blue">@Model.Status</span>
+            }
+        </p>
+
+        <hr />
+
+        <button onclick="window.print()" class="btn btn-success">Print Letter</button>
+
+    </div>
+}

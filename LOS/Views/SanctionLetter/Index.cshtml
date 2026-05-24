@@ -1,0 +1,81 @@
+@model IEnumerable<LOS.Models.SanctionLetter>
+@{
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+    ViewBag.PageTitle = "My Sactional Letter";
+}
+
+<h2>Sanction Letter List</h2>
+
+@* <a asp-action="Create" class="btn btn-primary mb-3">Create New</a> *@
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Deal ID</th>
+            <th>Approved Amount</th>
+            <th>EMI Amount</th>
+            <th>Interest Rate</th>
+            <th>Tenure (Months)</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.SanctionLetterId</td>
+                <td>@item.LoanDealId</td>
+                <td>₹ @item.LoanAmount</td>
+                <td>₹ @item.EMIAmount</td>
+                <td>@item.InterestRate %</td>
+                <td>@item.TenureMonths</td>
+                <td>@item.Status</td>
+                <td>
+                    <a asp-action="GenerateLetter" asp-route-id="@item.SanctionLetterId" class="btn btn-sm btn-info">View Letter</a>
+
+                    @if (item.Status == "Sanctioned")
+                    {
+                        <button class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                data-bs-target="#disburseModal-@item.SanctionLetterId">
+                            Disburse
+                        </button>
+                    }
+                    else if (item.Status == "Disbursed")
+                    {
+                        <button class="btn btn-sm btn-secondary" disabled>Disbursed</button>
+                    }
+                </td>
+            </tr>
+            <!-- Disburse Modal -->
+            <div class="modal fade" id="disburseModal-@item.SanctionLetterId" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form asp-controller="LoanDisbursement" asp-action="Create" method="post">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">Disburse Loan</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="LoanDealId" value="@item.LoanDealId" />
+                                <input type="hidden" name="DisbursedAmount" value="@item.LoanAmount" />
+                                <div class="mb-3">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" name="BankName" class="form-control" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Disbursement Date</label>
+                                    <input type="date" name="DisbursementDate" class="form-control" required />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Confirm Disbursement</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,93 @@
+@model LOS.Models.Customer
+@{
+    Layout = "~/Views/Shared/_LoanLayout.cshtml";
+    ViewBag.PageTitle = "My Profile";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">My Profile</h4>
+        </div>
+        <div class="card-body p-4">
+
+            @* Avatar + Name Header *@
+            <div class="d-flex align-items-center gap-4 mb-4 pb-3" style="border-bottom:1px solid #e9ecef;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:72px;height:72px;background:#071b3b;color:#ffcc00;font-size:26px;font-weight:bold;">
+                    @(Model.FirstName?.Length > 0 ? Model.FirstName[0].ToString().ToUpper() : "?")@(Model.LastName?.Length > 0 ? Model.LastName[0].ToString().ToUpper() : "")
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">@Model.FirstName @Model.LastName</h4>
+                    <div class="text-muted mb-1">@Model.Email</div>
+                    <span class="badge bg-primary rounded-pill px-3">@Model.Role</span>
+                    <span class="badge bg-light text-dark border rounded-pill px-3 ms-1">@Model.CustomerCode</span>
+                </div>
+            </div>
+
+            @* Info Grid *@
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background:#f8f9fa;">
+                        <div class="text-muted small mb-1">Mobile Number</div>
+                        <div class="fw-semibold">@(Model.Mobile ?? "—")</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background:#f8f9fa;">
+                        <div class="text-muted small mb-1">Age</div>
+                        <div class="fw-semibold">@(Model.Age.HasValue ? Model.Age.Value + " years" : "—")</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background:#f8f9fa;">
+                        <div class="text-muted small mb-1">PAN Number</div>
+                        <div class="fw-semibold">@(Model.PAN ?? "—")</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background:#f8f9fa;">
+                        <div class="text-muted small mb-1">Aadhaar Number</div>
+                        <div class="fw-semibold">@(Model.AadhaarNo ?? "—")</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background:#f8f9fa;">
+                        <div class="text-muted small mb-1">Employment Type</div>
+                        <div class="fw-semibold">@(Model.EmploymentType ?? "—")</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background:#f8f9fa;">
+                        <div class="text-muted small mb-1">Monthly Income</div>
+                        <div class="fw-semibold">@(Model.MonthlyIncome.HasValue ? "₹" + Model.MonthlyIncome.Value.ToString("N0") : "—")</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background:#f8f9fa;">
+                        <div class="text-muted small mb-1">Existing EMI</div>
+                        <div class="fw-semibold">@(Model.ExistingEMI.HasValue ? "₹" + Model.ExistingEMI.Value.ToString("N0") : "—")</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background:#f8f9fa;">
+                        <div class="text-muted small mb-1">CIBIL Score</div>
+                        <div class="fw-semibold">
+                            @if (ViewBag.CibilScore != null)
+                            {
+                                int score = (int)ViewBag.CibilScore;
+                                string color = score >= 750 ? "green" : score >= 650 ? "orange" : "red";
+                                <span style="color:@color">@score</span>
+                            }
+                            else
+                            {
+                                <span>—</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

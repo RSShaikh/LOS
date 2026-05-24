@@ -1,0 +1,38 @@
+@model LOS.Models.VerifyOtpViewModel
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow p-4">
+
+                <h2 class="text-center mb-4">Verify OTP</h2>
+
+                <p class="text-center text-muted">
+                    OTP sent to <strong>@ViewBag.Email</strong>
+                </p>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <form method="post">
+                    <input type="hidden" asp-for="Email" value="@ViewBag.Email" />
+                    <input type="hidden" name="purpose" value="@ViewBag.Purpose" />
+
+                    <div class="mb-3">
+                        <label>Enter OTP</label>
+                        <input asp-for="OtpCode" class="form-control" placeholder="6-digit OTP" />
+                    </div>
+
+                    <button class="btn btn-dark w-100">Verify</button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a href="/Auth/Login">Back to Login</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

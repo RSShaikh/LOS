@@ -1,0 +1,195 @@
+﻿@model LOS.Models.Customer
+
+@{
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+    
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3>Customer Profile</h3>
+            <span class="fw-bold">@Model.FirstName @Model.LastName</span>
+        </div>
+        <div class="card-body">
+            <p><strong>Customer Code:</strong> @Model.CustomerCode</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Phone:</strong> @Model.Mobile</p>
+            <p><strong>PAN:</strong> @Model.PAN</p>
+            <p><strong>Aadhaar:</strong> @Model.AadhaarNo</p>
+            <p><strong>Employment Type:</strong> @Model.EmploymentType</p>
+            <p><strong>Monthly Income:</strong> ₹@Model.MonthlyIncome</p>
+            <p><strong>Existing EMI:</strong> ₹@Model.ExistingEMI</p>
+            <p><strong>Role:</strong> @Model.Role</p>
+            <hr />
+
+            <h5>Loan Applications</h5>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Loan Type</th>
+                        <th>Requested Amount</th>
+                        <th>Tenure</th>
+                        <th>Interest Rate</th>
+                        <th>EMI</th>
+                        <th>Status</th>
+                        <th>Applied On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var loan in Model.ApplyLoans)
+                    {
+                        <tr>
+                            <td>@loan.LoanId</td>
+                            <td>@loan.LoanType</td>
+                            <td>₹@loan.RequestedAmount</td>
+                            <td>@loan.Tenure</td>
+                            <td>@loan.InterestRate %</td>
+                            <td>₹@loan.Emi</td>
+                            <td>
+                                @if (loan.Status == "Approved")
+                                {
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else if (loan.Status == "Rejected")
+                                {
+                                    <span class="badge bg-danger">Rejected</span>
+                                }
+                                else if (loan.Status == "Sanctioned")
+                                {
+                                    <span class="badge bg-primary">Sanctioned</span>
+                                }
+                                else if (loan.Status == "Disbursed")
+                                {
+                                    <span class="badge bg-info">Disbursed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+
+                            </td>
+                            <td>@loan.CreatedDate.ToString("dd-MMM-yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <hr />
+
+            <h5>Deals</h5>
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Deal ID</th>
+                        <th>Loan ID</th>
+                        <th>Requested Amount</th>
+                        <th>Approved Amount</th>
+                        <th>Tenure</th>
+                        <th>Interest Rate</th>
+                        <th>EMI</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var loan in Model.ApplyLoans)
+                    {
+                        foreach (var deal in loan.Deals)
+                        {
+                            <tr>
+                                <td>@deal.DealId</td>
+                                <td>@deal.LoanId</td>
+                                <td>₹@deal.RequestedAmount</td>
+                                <td>
+                                    @if (deal.ApprovedAmount > 0)
+                                    {
+                                        <span class="text-success">₹@deal.ApprovedAmount</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not yet approved</span>
+                                    }
+                                </td>
+                                <td>@deal.Tenure</td>
+                                <td>@deal.InterestRate %</td>
+                                <td>₹@deal.EMI</td>
+                                <td>
+                                    <td>
+                                        @if (deal.Status == "Approved")
+                                        {
+                                            <span class="badge bg-success">Approved</span>
+                                        }
+                                        else if (deal.Status == "Rejected")
+                                        {
+                                            <span class="badge bg-danger">Rejected</span>
+                                        }
+                                        else if (deal.Status == "Sanctioned")
+                                        {
+                                            <span class="badge bg-primary">Sanctioned</span>
+                                        }
+                                        else if (deal.Status == "Disbursed")
+                                        {
+                                            <span class="badge bg-info">Disbursed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        }
+                                    </td>
+
+
+                                </td>
+                                <td>
+                                    <!-- Approve Form -->
+                                    <form asp-action="Approve" method="post" class="d-inline">
+                                        <input type="hidden" name="dealId" value="@deal.DealId" />
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" name="approvedAmount"
+                                                   class="form-control"
+                                                   placeholder="Enter amount"
+                                                   required
+                                                   max="@deal.RequestedAmount" />
+                                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                        </div>
+                                    </form>
+
+                                    <!-- Reject Button -->
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="#rejectModal-@deal.DealId">
+                                        Reject
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Reject Modal -->
+                            <div class="modal fade" id="rejectModal-@deal.DealId" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form asp-action="Reject" method="post">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title">Reject Deal</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <input type="hidden" name="dealId" value="@deal.DealId" />
+                                                <div class="mb-3">
+                                                    <label class="form-label">Reason for Rejection</label>
+                                                    <textarea name="remarks" class="form-control" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-danger">Submit Rejection</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,254 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<ScoreCard>
+@{
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+}
+
+
+<style>
+
+    .scorecard-container {
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin-top: 20px;
+    }
+
+    .table-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #1e293b;
+    }
+
+    #myTable {
+        width: 100% !important;
+        border-collapse: collapse;
+    }
+
+        #myTable thead {
+            background: #0f172a;
+            color: white;
+        }
+
+            #myTable thead th {
+                padding: 14px;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border: none;
+            }
+
+        #myTable tbody td {
+            vertical-align: middle;
+            padding: 14px;
+            font-size: 14px;
+        }
+
+        #myTable tbody tr {
+            transition: 0.3s ease;
+        }
+
+            #myTable tbody tr:hover {
+                background-color: #f8fafc;
+                transform: scale(1.002);
+            }
+
+    .risk-low {
+        background: #dcfce7;
+        color: #166534;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .risk-medium {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .risk-high {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .risk-none {
+        background: #e5e7eb;
+        color: #374151;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .btn-edit {
+        background: #2563eb;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.3s ease;
+        font-weight: 600;
+    }
+
+        .btn-edit:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+
+    .loan-amount {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+</style>
+
+
+<div class="scorecard-container">
+
+    <div class="table-title">
+        Loan ScoreCards
+    </div>
+
+    <table class="table" id="myTable">
+
+        <thead>
+            <tr>
+                <th>ScoreCard Id</th>
+                <th>Customer Name</th>
+                <th>Cibil Score</th>
+                <th>Risk Category</th>
+                <th>Eligible Loan Amount</th>
+                <th>Created By</th>
+                <th>Created At</th>
+                <th>Modified By</th>
+                <th>Modified At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+
+                    <td>@item.ScoreCardId</td>
+
+                    <td>
+                        @item.Customer?.FirstName
+                        @item.Customer?.LastName
+                    </td>
+
+                    <td>
+                        @(item.Customer?.CibilReport?
+     .OrderByDescending(r => r.CheckDate)
+     .FirstOrDefault()?.CibilScore.ToString() ?? "-")
+
+
+
+                    </td>
+
+                    <td>
+
+                        @if (item.RiskCategory == "Low Risk")
+                        {
+                            <span class="risk-low">
+                                @item.RiskCategory
+                            </span>
+                        }
+                        else if (item.RiskCategory == "Medium Risk")
+                        {
+                            <span class="risk-medium">
+                                @item.RiskCategory
+                            </span>
+                        }
+                        else if (item.RiskCategory == "High Risk")
+                        {
+                            <span class="risk-high">
+                                @item.RiskCategory
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="risk-none">
+                                @item.RiskCategory
+                            </span>
+                        }
+
+                    </td>
+
+                    <td class="loan-amount">
+                        ₹@item.EligibleLoanAmount
+                    </td>
+
+                    <td>@item.CreatedBy</td>
+
+                    <td>
+                        @item.CreatedAt.ToString("dd-MM-yyyy hh:mm tt")
+                    </td>
+
+                    <td>
+                        @(item.ModifiedBy ?? "-")
+                    </td>
+
+                    <td>
+                        @(item.ModifiedAt?.ToString("dd-MM-yyyy hh:mm tt") ?? "-")
+                    </td>
+
+                    <td>
+                        <a asp-action="Edit"
+                               asp-route-id="@item.ScoreCardId"
+                               class="btn-edit">
+                            Edit
+                        </a>
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/2.3.8/css/dataTables.dataTables.min.css" />
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script src="https://cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+    new DataTable('#myTable', {
+
+    pageLength: 5,
+
+    lengthMenu: [5, 10, 20, 50],
+
+    responsive: true
+
+    });
+
+    });
+
+</script>

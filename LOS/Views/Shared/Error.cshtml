@@ -1,0 +1,23 @@
+﻿@model LOS.ViewModel.ErrorViewModel;
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-danger">
+        <div class="card-header bg-danger text-white">
+            <h3>Oops! Something went wrong</h3>
+        </div>
+        <div class="card-body">
+            <p class="lead">We’re sorry, but an unexpected error occurred.</p>
+            <p>Please try again later or contact support if the problem persists.</p>
+
+            @if (Model.ShowRequestId)
+            {
+                <p class="text-muted">Error Reference ID: <strong>@Model.RequestId</strong></p>
+            }
+
+            <a href="/" class="btn btn-primary">Go Back Home</a>
+        </div>
+    </div>
+</div>

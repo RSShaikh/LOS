@@ -1,0 +1,212 @@
+@model IEnumerable<LOS.Models.EligibilityResult>
+@{
+    ViewData["Title"] = "Eligibility Check";
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+}
+
+@{
+    int sr = 1;
+}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="mb-4 text-primary">
+            Eligibility Results
+        </h2>
+
+        <table id="myTable" class="table table-bordered table-hover">
+
+            <thead class="table-dark">
+
+                <tr>
+                    <th>Sr No</th>
+                    <th>Customer Name</th>
+                    <th>CIBIL Score</th>
+                    <th>Eligibility</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-danger">
+                            No Eligibility Records Found
+                        </td>
+                    </tr>
+                }
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>@sr</td>
+
+                        <td>
+                            @item.Customer?.FirstName
+                            @item.Customer?.LastName
+                        </td>
+
+                        <td>
+                            @if (item.CibilScore >= 750)
+                            {
+                                <span class="text-success fw-bold">@item.CibilScore</span>
+                            }
+                            else if (item.CibilScore >= 650)
+                            {
+                                <span class="text-warning fw-bold">@item.CibilScore</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger fw-bold">@item.CibilScore</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.IsEligible == true)
+                            {
+                                <span class="badge bg-success">YES</span>
+                            }
+                            else if (item.IsEligible == false)
+                            {
+                                <span class="badge bg-danger">NO</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.ReviewStatus == "Approved By Officer")
+                            {
+                                <span class="badge bg-primary">Approved By Officer</span>
+                            }
+                            else if (item.ReviewStatus == "Rejected By Officer")
+                            {
+                                <span class="badge bg-danger">Rejected By Officer</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Pending Review</span>
+                            }
+                        </td>
+
+                        <!-- REASON COLUMN -->
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.RejectionReason))
+                            {
+                                <button class="btn btn-outline-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#viewReasonModal-@item.EligibilityId">
+                                    View Reason
+                                </button>
+                            }
+                        </td>
+
+                        <!-- ACTION COLUMN -->
+                        <td>
+                            @if (item.ReviewStatus != "Approved By Officer" && item.ReviewStatus != "Rejected By Officer")
+                            {
+                                <form asp-action="Approve" method="post" style="display:inline"
+                                      onsubmit="return confirm('Are you sure you want to approve?')">
+                                    <input type="hidden" name="EligibilityId" value="@item.EligibilityId" />
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        Approve
+                                    </button>
+                                </form>
+
+                                <button class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#rejectModal-@item.EligibilityId">
+                                    Reject
+                                </button>
+                            }
+                        </td>
+
+                    </tr>
+
+                    <!-- VIEW REASON MODAL (only for already-rejected records) -->
+                    @if (!string.IsNullOrEmpty(item.RejectionReason))
+                    {
+                        <div class="modal fade"
+                             id="viewReasonModal-@item.EligibilityId"
+                             tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Rejection Reason</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @item.RejectionReason
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- REJECT MODAL (only for non-reviewed records) -->
+                    @if (item.ReviewStatus != "Approved By Officer" && item.ReviewStatus != "Rejected By Officer")
+                    {
+                        <div class="modal fade"
+                             id="rejectModal-@item.EligibilityId"
+                             tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form asp-action="Reject" method="post">
+
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Enter Rejection Reason</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <input type="hidden" name="EligibilityId" value="@item.EligibilityId" />
+                                            <textarea name="RejectionReason"
+                                                      class="form-control"
+                                                      rows="5"
+                                                      placeholder="Enter rejection reason..."
+                                                      required></textarea>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-danger">
+                                                Submit Reason
+                                            </button>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    sr++;
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="//cdn.datatables.net/2.3.8/css/dataTables.dataTables.min.css" />
+    <script src="//cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script>
+        $(document).ready(function () {
+            new DataTable('#myTable');
+        });
+    </script>
+}

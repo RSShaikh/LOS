@@ -1,0 +1,15 @@
+@model LOS.Models.EligibilityResult
+
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h3>Approve Eligibility</h3>
+        <form method="post">
+            <input type="hidden" asp-for="EligibilityId" />
+            <div class="alert alert-success">
+                Are you sure you want to approve this customer eligibility?
+            </div>
+            <button type="submit" class="btn btn-success">Approve</button>
+            <a asp-action="EIndex" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

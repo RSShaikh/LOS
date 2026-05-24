@@ -1,0 +1,134 @@
+﻿@model LOS.Models.ApplyLoan
+@{
+    Layout = "~/Views/Shared/_LoanLayout.cshtml";
+    var loanTypes = ViewBag.LoanTypes as List<LOS.Models.Interest>;
+
+}
+
+@if (Model != null && Model.Status == "Duplicate")
+{
+    <div class="alert alert-warning">
+        @Model.Remarks
+    </div>
+}
+else if (Model != null && Model.Status == "Invalid")
+{
+    <div class="alert alert-danger">
+        @Model.Remarks
+    </div>
+}
+
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3>Apply for a Loan</h3>
+        </div>
+        <div class="card-body">
+            @if (ViewBag.CanApplyLoan)
+            {
+            <form asp-action="Create" method="post" id="loanForm">
+                <input asp-for="CustomerId" type="hidden" value="@ViewBag.CustomerId" />
+
+                <div class="mb-3">
+                    <label asp-for="LoanType" class="form-label"></label>
+                    <select asp-for="LoanType" class="form-select" id="LoanType">
+                        <option value="">-- Select Loan Type --</option>
+                        @foreach (var lt in loanTypes)
+                        {
+                            <option value="@lt.LoanType">@lt.LoanType</option>
+                        }
+                    </select>
+                    <span asp-validation-for="LoanType" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="InterestRate" class="form-label"></label>
+                    <input asp-for="InterestRate" id="InterestRate" class="form-control" readonly />
+                    <span asp-validation-for="InterestRate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="RequestedAmount" class="form-label"></label>
+                    <input asp-for="RequestedAmount"
+                           id="RequestedAmount"
+                           class="form-control"
+                           type="number"
+                           min="1000"
+                           max="10000000"
+                           step="1000"
+                           placeholder="Enter amount (₹)" />
+                    <span asp-validation-for="RequestedAmount" class="text-danger"></span>
+                    <small class="text-muted">Amount must be between ₹1,000 and ₹1,000,0000</small>
+                </div>
+
+                <div class="mb-3">
+                     <label asp-for="Tenure" class="form-label">(In Months)</label>
+                    <input asp-for="Tenure" id="Tenure" class="form-control" type="number" min="6" max="360" />
+                    <span asp-validation-for="Tenure" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Emi" class="form-label"></label>
+                    <input asp-for="Emi" id="Emi" class="form-control" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label"></label>
+                    <input asp-for="Status" value="Applied" class="form-control" readonly />
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Submit Application</button>
+            </form>
+            }
+            else
+            {
+            <!-- Notification -->
+            <div class="alert alert-warning">
+                @if (ViewBag.KYCIncomplete)
+                {
+                    <p>Your KYC is incomplete. Please upload documents before applying for a loan.</p>
+                }
+                else if (ViewBag.NotEligible)
+                {
+                    <p>You are not eligible for a loan based on your current profile.</p>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Fetch interest rate dynamically from backend
+        $("#LoanType").change(function () {
+        var loanType = $(this).val();
+        if (loanType) {
+        $.getJSON('/Loan/GetInterestRate', { loanType: loanType }, function (rate) {
+        $("#InterestRate").val(rate);
+        calculateEMI();
+        });
+        }
+        });
+
+        $("#RequestedAmount, #Tenure").on("input", function () {
+        calculateEMI();
+        });
+
+        function calculateEMI() {
+        var P = parseFloat($("#RequestedAmount").val());
+        var R = parseFloat($("#InterestRate").val()) / 12 / 100;
+        var N = parseInt($("#Tenure").val());
+
+        if (!isNaN(P) && !isNaN(R) && !isNaN(N) && P > 0 && R > 0 && N > 0) {
+        var emi = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1);
+        $("#Emi").val(emi.toFixed(2));
+        } else {
+        $("#Emi").val("");
+        }
+        }
+    </script>
+}

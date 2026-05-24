@@ -1,0 +1,40 @@
+@model LOS.Models.Disbursement
+
+@{
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+    ViewData["Title"] = "Loan Disbursements";
+}
+<h2>Loan Disbursement</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="LoanDealId" class="form-label">Deal ID</label>
+        <input asp-for="LoanDealId" class="form-control" />
+        <span asp-validation-for="LoanDealId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DisbursedAmount" class="form-label">Disbursement Amount (₹)</label>
+        <input asp-for="DisbursedAmount" class="form-control" />
+        <span asp-validation-for="DisbursedAmount" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="BankName" class="form-label">Bank Name</label>
+        <select asp-for="BankName" class="form-control">
+            <option value="">-- Select Bank --</option>
+            <option>SBI</option>
+            <option>HDFC</option>
+            <option>ICICI</option>
+            <option>Axis</option>
+        </select>
+        <span asp-validation-for="BankName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Disburse Loan</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

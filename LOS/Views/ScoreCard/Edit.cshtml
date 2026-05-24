@@ -1,0 +1,47 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model ScoreCard
+
+<form asp-action="Edit" method="post">
+
+    <input type="hidden" asp-for="ScoreCardId" />
+
+    <div class="form-group">
+        <label>Customer Name</label>
+        <input class="form-control"
+               value="@Model.Customer?.FirstName @Model.Customer?.LastName"
+               readonly />
+    </div>
+
+    <br />
+
+    <div class="form-group">
+        <label>Eligible Loan Amount</label>
+        <input class="form-control"
+               value="@Model.EligibleLoanAmount"
+               readonly />
+    </div>
+
+    <br />
+
+    <div class="form-group">
+        <label>Risk Category</label>
+
+        <select asp-for="RiskCategory" class="form-control">
+            <option value="">-- Select Risk --</option>
+            <option value="Low Risk">Low Risk</option>
+            <option value="Medium Risk">Medium Risk</option>
+            <option value="High Risk">High Risk</option>
+        </select>
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">
+        Update
+    </button>
+
+</form>

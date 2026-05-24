@@ -1,0 +1,34 @@
+@model IEnumerable<LOS.Models.Disbursement>
+
+@{
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+    ViewData["Title"] = "Loan Disbursements";
+}
+
+<h2>Disbursement List</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Deal ID</th>
+            <th>Disbursed Amount</th>
+            <th>Bank Name</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.DisbursementId</td>
+                <td>@item.LoanDealId</td>
+                <td>₹ @item.DisbursedAmount</td>
+                <td>@item.BankName</td>
+                <td>@item.DisbursementStatus</td>
+                <td>@item.DisbursementDate.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>

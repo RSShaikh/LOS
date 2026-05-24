@@ -1,0 +1,135 @@
+﻿@model List<LOS.Models.ApplyLoan>
+
+    @{
+    Layout = "~/Views/Shared/_LoanLayout.cshtml";   
+        
+    }
+
+<div class="container mt-4">
+
+
+    <!-- ✅ Approval Banner -->
+    @if (Model.Any(l => l.Status == "Approved"))
+    {
+        var approvedLoan = Model.FirstOrDefault(l => l.Status == "Approved");
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Loan Approved:</strong> Congratulations! Your loan (ID: @approvedLoan.LoanId) has been approved.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Rejection Banner -->
+    @if (Model.Any(l => l.Status == "Rejected" && !string.IsNullOrEmpty(l.Remarks)))
+    {
+        var rejectedLoan = Model.FirstOrDefault(l => l.Status == "Rejected" && !string.IsNullOrEmpty(l.Remarks));
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Loan Rejected:</strong> @rejectedLoan.Remarks
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3>My Loan Applications</h3>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <a asp-controller="Loan" asp-action="Create" class="btn btn-primary">
+                    Apply for New Loan
+                </a>
+            </div>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Loan ID</th>
+                        <th>Loan Type</th>
+                        <th>Requested Amount</th>
+                        <th>Approved Amount</th>
+                        <th>Tenure</th>
+                        <th>Interest Rate</th>
+                        <th>Original EMI</th> <!-- requested -->
+                        <th>New EMI</th> <!-- approved -->
+                        <th>Status</th>
+                        <th>Applied On</th>
+                        <th>Remarks</th>
+                        <th>Officer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var loan in Model)
+                    {
+                        <tr>
+                            <td>@loan.LoanId</td>
+                            <td>@loan.LoanType</td>
+                            
+                            <td>&#8377;@loan.RequestedAmount</td>
+                            <td>
+                                @if (loan.ApprovedAmount > 0)
+                                {
+                                    <span class="text-success">&#8377;@loan.ApprovedAmount</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not yet approved</span>
+                                }
+                            </td>
+                           
+                            <td>@loan.Tenure</td>
+                            <td>@loan.InterestRate %</td>
+                            <td>&#8377;@loan.Emi</td> <!-- ✅ original EMI -->
+                            <td>
+                                @if (loan.NewEmi > 0)
+                                {
+                                    @if (loan.NewEmi < loan.Emi)
+                                    {
+                                        <span class="badge bg-success">Reduced: &#8377;@loan.NewEmi</span>
+                                    }
+                                    else if (loan.NewEmi > loan.Emi)
+                                    {
+                                        <span class="badge bg-danger">Increased: &#8377;@loan.NewEmi</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info">Same: &#8377;@loan.NewEmi</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Pending</span>
+                                }
+                            </td>
+                            
+                            <td>
+                                @if (loan.Status == "Approved")
+                                {
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else if (loan.Status == "Rejected")
+                                {
+                                    <span class="badge bg-danger">Rejected</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                            </td>
+                            <td>@loan.CreatedDate.ToString("dd-MMM-yyyy")</td>
+                            <td>@loan.Remarks</td>
+                            <td>
+                                <!-- ✅ Hardcoded officer name for now -->
+                                @if (loan.Status == "Approved" || loan.Status == "Rejected")
+                                {
+                                    <span class="text-primary">Rukhsar Shaikh</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

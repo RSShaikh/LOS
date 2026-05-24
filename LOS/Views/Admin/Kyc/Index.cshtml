@@ -1,0 +1,100 @@
+@model List<LOS.Models.Customer>
+@{
+    Layout = "~/Views/Shared/_LoanOfficerLayout.cshtml";
+    ViewBag.PageTitle = "KYC Documents";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3>KYC Review</h3>
+        </div>
+        <div class="card-body">
+            <div class="d-flex gap-2 mb-3">
+                <input type="text" id="searchInput" class="form-control"
+                       placeholder="Search customer..." onkeyup="searchTable()" style="max-width:280px;" />
+                <select id="statusFilter" class="form-select" onchange="filterStatus()" style="max-width:160px;">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="No Documents">No Documents</option>
+                </select>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <p class="text-muted text-center py-4">No customers registered yet.</p>
+            }
+            else
+            {
+                <table class="table table-bordered table-hover" id="dataTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Customer Code</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>KYC Status</th>
+                            <th>Docs Uploaded</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int i = 1; }
+                        @foreach (var c in Model)
+                        {
+                            var docs = c.KYCDocument?.Where(d => d.IsActive).ToList()
+                                       ?? new List<LOS.Models.KYCDocument>();
+                            string kycStatus = "No Documents";
+                            string badgeColor = "secondary";
+                            if (docs.Any())
+                            {
+                                if (docs.Any(d => d.VerificationStatus == "Rejected"))
+                                { kycStatus = "Rejected"; badgeColor = "danger"; }
+                                else if (docs.Any(d => d.VerificationStatus == "Pending"))
+                                { kycStatus = "Pending"; badgeColor = "warning"; }
+                                else if (docs.All(d => d.VerificationStatus == "Approved"))
+                                { kycStatus = "Approved"; badgeColor = "success"; }
+                            }
+                            <tr data-status="@kycStatus">
+                                <td>@(i++)</td>
+                                <td><strong>@c.FirstName @c.LastName</strong></td>
+                                <td>@c.CustomerCode</td>
+                                <td>@c.Email</td>
+                                <td>@(c.Mobile ?? "—")</td>
+                                <td><span class="badge bg-@badgeColor">@kycStatus</span></td>
+                                <td>@docs.Count uploaded</td>
+                                <td>
+                                    <a asp-action="Review" asp-controller="AdminKyc"
+                                       asp-route-id="@c.CustomerId"
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fa-solid fa-eye me-1"></i>Review
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function searchTable() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        document.querySelectorAll("#dataTable tbody tr").forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(input) ? "" : "none";
+        });
+    }
+    function filterStatus() {
+        const val = document.getElementById("statusFilter").value;
+        document.querySelectorAll("#dataTable tbody tr").forEach(row => {
+            row.style.display = (!val || row.dataset.status === val) ? "" : "none";
+        });
+    }
+</script>
+}
