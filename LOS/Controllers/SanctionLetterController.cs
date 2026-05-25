@@ -8,35 +8,35 @@ namespace LOS.Controllers
 {
     public class SanctionLetterController : Controller
     {
-        private readonly ISanctionService _service;
-        private readonly ApplicationDbContext _context;
-        private readonly IEmailService _emailService;
+        private readonly ISanctionService service;
+        private readonly ApplicationDbContext db;
+        private readonly IEmailService emailService;
 
         public SanctionLetterController(
             ISanctionService service,
-            ApplicationDbContext context,
+            ApplicationDbContext db,
             IEmailService emailService)
         {
-            _service = service;
-            _context = context;
-            _emailService = emailService;
+            this.service = service;
+            this.db = db;
+            this.emailService = emailService;
         }
 
         public IActionResult Index()
         {
-            return View(_service.GetAll());
+            return View(service.GetAll());
         }
 
         
 
         public IActionResult GenerateLetter(int id)
         {
-            var sanction = _service.GetById(id);
+            var sanction = service.GetById(id);
 
             if (sanction == null)
                 return NotFound();
 
-            var deal = _context.Deals
+            var deal = db.Deals
                 .Include(d => d.Loan)
                 .ThenInclude(l => l.Customer)
                 .FirstOrDefault(x => x.DealId == sanction.LoanDealId);
@@ -55,7 +55,7 @@ namespace LOS.Controllers
 
         public IActionResult GenerateDirect(int loanDealId)
         {
-            var deal = _context.Deals
+            var deal = db.Deals
                 .Include(d => d.Loan)
                 .ThenInclude(l => l.Customer)
                 .FirstOrDefault(x => x.DealId == loanDealId);
@@ -69,23 +69,22 @@ namespace LOS.Controllers
                 LoanAmount = deal.ApprovedAmount,
                 InterestRate = deal.InterestRate,
                 TenureMonths = deal.Tenure,
-                EMIAmount = _service.CalculateEMI(deal.ApprovedAmount, deal.InterestRate, deal.Tenure)
+                EMIAmount = service.CalculateEMI(deal.ApprovedAmount, deal.InterestRate, deal.Tenure)
             };
 
-            var result = _service.CreateSanction(sanction);
+            var result = service.CreateSanction(sanction);
             // ✅ Update Deal status using the same deal object
             if (deal != null)
             {
                 deal.Status = "Sanctioned";   // or "SanctionGenerated"
-                _context.SaveChanges();
+                db.SaveChanges();
             }
 
             string customerName = $"{deal.Loan.Customer.FirstName} {deal.Loan.Customer.LastName}";
-            string pdfPath = _service.GeneratePdf(result, customerName);
-
+            string pdfPath = service.GeneratePdf(result, customerName);
             try
             {
-                _emailService.SendSanctionLetterEmail(deal.Loan.Customer, result, pdfPath);
+                emailService.SendSanctionLetterEmail(deal.Loan.Customer, result, pdfPath);
             }
             catch
             {

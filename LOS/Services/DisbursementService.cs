@@ -7,13 +7,13 @@ namespace LOS.Services
 {
     public class DisbursementService : IDisbursementService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IEmailService _emailService;
+        private readonly ApplicationDbContext db;
+        private readonly IEmailService emailService;
 
-        public DisbursementService(ApplicationDbContext context, IEmailService emailService)
+        public DisbursementService(ApplicationDbContext db, IEmailService emailService)
         {
-            _context = context;
-            _emailService = emailService;
+            this.db = db;
+            this.emailService = emailService;
         }
 
         public void CreateDisbursement(Disbursement disbursement)
@@ -21,21 +21,21 @@ namespace LOS.Services
             disbursement.DisbursementDate = DateTime.Now;
             disbursement.DisbursementStatus = "Completed";
 
-            _context.Disbursements.Add(disbursement);
+            db.Disbursements.Add(disbursement);
 
             // Update sanction letter status
-            var sanction = _context.SanctionLetters.FirstOrDefault(s => s.LoanDealId == disbursement.LoanDealId);
+            var sanction = db.SanctionLetters.FirstOrDefault(s => s.LoanDealId == disbursement.LoanDealId);
             if (sanction != null)
             {
                 sanction.Status = "Disbursed";
             }
 
-            _context.SaveChanges();
+            db.SaveChanges();
 
             // Send disbursement email to customer
             try
             {
-                var deal = _context.Deals
+                var deal = db.Deals
                     .Include(d => d.Loan)
                     .ThenInclude(l => l.Customer)
                     .FirstOrDefault(d => d.DealId == disbursement.LoanDealId);
@@ -43,7 +43,7 @@ namespace LOS.Services
                 var customer = deal?.Loan?.Customer;
                 if (customer != null)
                 {
-                    _emailService.SendDisbursementEmail(customer, disbursement);
+                    emailService.SendDisbursementEmail(customer, disbursement);
                 }
             }
             catch
@@ -54,12 +54,12 @@ namespace LOS.Services
 
         public List<Disbursement> GetAll()
         {
-            return _context.Disbursements.ToList();
+            return db.Disbursements.ToList();
         }
 
         public Disbursement? GetById(int id)
         {
-            return _context.Disbursements.FirstOrDefault(x => x.DisbursementId == id);
+            return db.Disbursements.FirstOrDefault(x => x.DisbursementId == id);
         }
     }
 }

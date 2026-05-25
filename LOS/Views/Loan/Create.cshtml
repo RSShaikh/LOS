@@ -17,8 +17,6 @@ else if (Model != null && Model.Status == "Invalid")
         @Model.Remarks
     </div>
 }
-
-
 <div class="container mt-4">
     <div class="card shadow-lg">
         <div class="card-header bg-primary text-white">
@@ -63,7 +61,7 @@ else if (Model != null && Model.Status == "Invalid")
                 </div>
 
                 <div class="mb-3">
-                     <label asp-for="Tenure" class="form-label">(In Months)</label>
+                     <label asp-for="Tenure" class="form-label">Tenure(In Months)</label>
                     <input asp-for="Tenure" id="Tenure" class="form-control" type="number" min="6" max="360" />
                     <span asp-validation-for="Tenure" class="text-danger"></span>
                 </div>

@@ -12,11 +12,11 @@ namespace LOS.Services
 {
     public class SanctionService : ISanctionService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext db;
 
-        public SanctionService(ApplicationDbContext context)
+        public SanctionService(ApplicationDbContext db)
         {
-            _context = context;
+            this.db = db;
         }
 
         public SanctionLetter CreateSanction(SanctionLetter sanction)
@@ -29,20 +29,20 @@ namespace LOS.Services
             sanction.SanctionDate = DateTime.Now;
             sanction.Status = "Sanctioned";
 
-            _context.SanctionLetters.Add(sanction);
-            _context.SaveChanges();
+            db.SanctionLetters.Add(sanction);
+            db.SaveChanges();
 
             return sanction;
         }
 
         public List<SanctionLetter> GetAll()
         {
-            return _context.SanctionLetters.ToList();
+            return  db.SanctionLetters.ToList();
         }
 
         public SanctionLetter? GetById(int id)
         {
-            return _context.SanctionLetters.FirstOrDefault(x => x.SanctionLetterId == id);
+            return db.SanctionLetters.FirstOrDefault(x => x.SanctionLetterId == id);
         }
 
         public decimal CalculateEMI(decimal principal, decimal rate, int months)

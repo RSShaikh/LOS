@@ -6,16 +6,16 @@ namespace LOS.Controllers
 {
     public class LoanDisbursementController : Controller
     {
-        private readonly IDisbursementService _service;
+        private readonly IDisbursementService service;
 
         public LoanDisbursementController(IDisbursementService service)
         {
-            _service = service;
+            this.service = service;
         }
 
         public IActionResult Index()
         {
-            return View(_service.GetAll());
+            return View(service.GetAll());
         }
 
         public IActionResult Create()
@@ -29,7 +29,7 @@ namespace LOS.Controllers
             if (!ModelState.IsValid)
                 return View(disbursement);
 
-            _service.CreateDisbursement(disbursement);
+            service.CreateDisbursement(disbursement);
             return RedirectToAction("Index");
         }
     }
