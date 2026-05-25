@@ -9,12 +9,12 @@ namespace LOS.Controllers
     [Authorize]
     public class CustController : Controller
     {
-        IEligibilityService _eligibilityService;
+        IEligibilityService CeligibilityService;
         private readonly ApplicationDbContext db;
 
         public CustController(IEligibilityService eligibilityService, ApplicationDbContext db)
         {
-            _eligibilityService = eligibilityService;
+            CeligibilityService = eligibilityService;
             this.db = db;
         }
 
@@ -52,8 +52,8 @@ namespace LOS.Controllers
                 .OrderByDescending(x => x.CheckDate)
                 .FirstOrDefault();
 
-            _eligibilityService.GetEligibilityResults();
-            var eligibility = _eligibilityService.GetEligibilityByCustomerId(customerId);
+            CeligibilityService.GetEligibilityResults();
+            var eligibility = CeligibilityService.GetEligibilityByCustomerId(customerId);
 
             ViewBag.KYCIncomplete = !kycComplete;
             ViewBag.CibilNotChecked = (cibil == null || cibil.CibilScore <= 0);
@@ -61,14 +61,14 @@ namespace LOS.Controllers
             return View(eligibility);
         }
 
-        // ─── SANCTION LETTER ────────────────────────────────────────────
+
         public IActionResult MySanctionLetter()
         {
             int customerId = GetCustomerId();
             if (customerId == 0)
                 return RedirectToAction("Login", "Auth");
 
-            // Get latest sanctioned deal for this customer
+
             var sanction = db.SanctionLetters
                 .Include(s => s.LoanDeals)
                     .ThenInclude(d => d.Loan)
@@ -89,14 +89,14 @@ namespace LOS.Controllers
             return View(sanction);
         }
 
-        // ─── DISBURSEMENT ────────────────────────────────────────────────
+
         public IActionResult MyDisbursement()
         {
             int customerId = GetCustomerId();
             if (customerId == 0)
                 return RedirectToAction("Login", "Auth");
 
-            // Get disbursement for this customer via Deal → Loan → Customer
+
             var disbursement = db.Disbursements
                 .Include(d => d.LoanDeals)
                     .ThenInclude(deal => deal.Loan)
@@ -108,14 +108,14 @@ namespace LOS.Controllers
             if (disbursement != null)
             {
                 var customer = disbursement.LoanDeals?.Loan?.Customer;
-                var deal     = disbursement.LoanDeals;
-                var loan     = deal?.Loan;
+                var deal = disbursement.LoanDeals;
+                var loan = deal?.Loan;
 
-                ViewBag.CustomerName  = customer != null ? $"{customer.FirstName} {customer.LastName}" : "N/A";
+                ViewBag.CustomerName = customer != null ? $"{customer.FirstName} {customer.LastName}" : "N/A";
                 ViewBag.CustomerEmail = customer?.Email ?? "";
-                ViewBag.LoanType      = loan?.LoanType ?? "";
-                ViewBag.EMI           = deal?.EMI.ToString("N2") ?? "N/A";
-                ViewBag.Tenure        = deal?.Tenure ?? 0;
+                ViewBag.LoanType = loan?.LoanType ?? "";
+                ViewBag.EMI = deal?.EMI.ToString("N2") ?? "N/A";
+                ViewBag.Tenure = deal?.Tenure ?? 0;
             }
 
             return View(disbursement);

@@ -18,7 +18,7 @@ namespace LOS.Services
         {
             var model = new TrackStatusViewModel();
 
-            //var kyc = db.KYCDocuments.FirstOrDefault(x => x.CustomerId == customerId);
+
             var cibil = db.CibilReports.FirstOrDefault(x => x.CustomerId == customerId);
             var eligibility = db.EligibilityResults.FirstOrDefault(x => x.CustomerId == customerId);
             var scoreCard = db.ScoreCards.FirstOrDefault(x => x.CustomerId == customerId);
@@ -31,27 +31,10 @@ namespace LOS.Services
                 .OrderByDescending(x => x.DealId)
                 .FirstOrDefault();
 
-            // 1. KYC STATUS
-            //bool kycApproved = kyc != null && kyc.VerificationStatus == "Approved";
-            //bool kycRejected = kyc != null && kyc.VerificationStatus == "Rejected";
 
-            //model.Steps.Add(new TrackStepViewModel
-            //{
-            //    Title = "KYC Verification",
-            //    Status = kycApproved ? "Approved" : kycRejected ? "Rejected" : "Pending",
-            //    Message = kycApproved
-            //        ? "Your KYC documents are approved."
-            //        : kycRejected
-            //            ? "Your KYC documents are rejected. Please re-upload rejected documents."
-            //            : "Your KYC verification is pending.",
-            //    IsCompleted = kycApproved,
-            //    IsRejected = kycRejected
-            //});
-
-            // 1. KYC STATUS (fetch latest active document)
             var kyc = db.KYCDocuments
                 .Where(x => x.CustomerId == customerId && x.IsActive)
-                .OrderByDescending(x => x.DocumentId) // or SubmittedDate if you have it
+                .OrderByDescending(x => x.DocumentId)
                 .FirstOrDefault();
 
             bool kycApproved = kyc != null &&
@@ -73,7 +56,7 @@ namespace LOS.Services
             });
 
 
-            // 2. CIBIL STATUS
+
             model.Steps.Add(new TrackStepViewModel
             {
                 Title = "CIBIL Report",
@@ -85,7 +68,7 @@ namespace LOS.Services
                 IsRejected = false
             });
 
-            // 3. ELIGIBILITY STATUS
+
             bool eligibilityRejected = eligibility != null && eligibility.IsEligible == false;
 
             model.Steps.Add(new TrackStepViewModel
@@ -101,7 +84,7 @@ namespace LOS.Services
                 IsRejected = eligibilityRejected
             });
 
-            // 4. SCORECARD STATUS
+
             model.Steps.Add(new TrackStepViewModel
             {
                 Title = "ScoreCard",
@@ -113,7 +96,7 @@ namespace LOS.Services
                 IsRejected = false
             });
 
-            // 5. LOAN + DEAL REVIEW STATUS
+
             if (deal == null)
             {
                 model.Steps.Add(new TrackStepViewModel
@@ -145,7 +128,7 @@ namespace LOS.Services
                 });
             }
 
-            // 6. DISBURSEMENT STATUS
+
             model.Steps.Add(new TrackStepViewModel
             {
                 Title = "Disbursement",

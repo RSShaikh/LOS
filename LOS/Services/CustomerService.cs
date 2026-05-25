@@ -80,5 +80,12 @@ namespace LOS.Services
 
             return true;
         }
+
+        public Customer GetByIdWithCibil(int customerId)
+        {
+            return db.Customers
+                .Include(c => c.CibilReport)
+                .FirstOrDefault(c => c.CustomerId == customerId);
+        }
     }
 }

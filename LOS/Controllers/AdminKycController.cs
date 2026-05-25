@@ -71,7 +71,7 @@ namespace LOS.Controllers
                 }
                 catch
                 {
-                    // Email fail hone pe bhi rejection save rahega
+                    
                 }
             }
 

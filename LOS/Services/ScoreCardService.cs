@@ -173,26 +173,17 @@ namespace LOS.Services
 
                     if (!scoreCard.IsRiskOverridden)
                     {
-                        if (cibil >= 800 &&
-                        scoreCard.EligibleLoanAmount >= 5000000)
+                        if (cibil > 750)
                         {
                             scoreCard.RiskCategory = "Low Risk";
                         }
-
-                        else if (cibil >= 750 &&
-                                 scoreCard.EligibleLoanAmount >= 2500000)
+                        else if (cibil > 650 && cibil <= 750)
                         {
                             scoreCard.RiskCategory = "Medium Risk";
                         }
-
-                        else if (cibil >= 650)
-                        {
-                            scoreCard.RiskCategory = "High Risk";
-                        }
-
                         else
                         {
-                            scoreCard.RiskCategory = "None";
+                            scoreCard.RiskCategory = "High Risk";
                         }
                     }
                 }

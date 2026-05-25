@@ -7,19 +7,19 @@ namespace LOS.Services
 {
     public class CibilService : ICibilService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext context;
 
         public CibilService(
             ApplicationDbContext context)
         {
-            _context = context;
+            this.context = context;
         }
 
-        public async Task<Customer>
+        public Task<Customer?>
         GetCustomerWithCibilAsync(
             int customerId)
         {
-            return await _context.Customers
+            return context.Customers
                 .Include(
                     c => c.CibilReport
                 )
@@ -35,30 +35,27 @@ namespace LOS.Services
         }
 
         public async Task<int>
-       GenerateAndSaveCibilScoreAsync(
-int customerId,
-decimal bankBalance
-)
+        GenerateAndSaveCibilScoreAsync(
+            int customerId,
+            decimal bankBalance
+        )
         {
             var customer =
-                await _context.Customers
-
-                .Include(
-                    c =>
-                    c.CibilReport
-                )
-
-                .Include(
-                    c =>
-                    c.KYCDocument
-                )
-
-                .FirstOrDefaultAsync(
-                    c =>
-                    c.CustomerId
-                    ==
-                    customerId
-                );
+                await context.Customers
+                    .Include(
+                        c =>
+                        c.CibilReport
+                    )
+                    .Include(
+                        c =>
+                        c.KYCDocument
+                    )
+                    .FirstOrDefaultAsync(
+                        c =>
+                        c.CustomerId
+                        ==
+                        customerId
+                    );
 
             if (
                 customer
@@ -88,15 +85,15 @@ decimal bankBalance
                 .KYCDocument
                 .Any(
 
-                x =>
+                    x =>
 
-                x.IsActive
+                    x.IsActive
 
-                &&
+                    &&
 
-                x.VerificationStatus
-                ==
-                "Approved"
+                    x.VerificationStatus
+                    ==
+                    "Approved"
 
                 );
 
@@ -106,7 +103,7 @@ decimal bankBalance
             {
                 throw new Exception(
 
-                "Complete KYC and wait for officer approval."
+                    "Complete KYC and wait for officer approval."
 
                 );
             }
@@ -153,10 +150,10 @@ decimal bankBalance
             // AGE
 
             if (
-customer.Age >= 25
-&&
-customer.Age <= 45
-)
+                customer.Age >= 25
+                &&
+                customer.Age <= 45
+            )
             {
                 score += 100;
             }
@@ -207,6 +204,7 @@ customer.Age <= 45
                 =
                 DateTime.Now;
             }
+
             else
             {
                 customer
@@ -219,42 +217,40 @@ customer.Age <= 45
                 .CibilReport
                 .Add(
 
-                new CibilReport
-                {
-                    CustomerId =
-                    customer.CustomerId,
+                    new CibilReport
+                    {
+                        CustomerId =
+                        customer.CustomerId,
 
-                    PAN =
-                    customer.PAN
-                    ??
-                    "",
+                        PAN =
+                        customer.PAN
+                        ??
+                        "",
 
-                    CibilScore =
-                    score,
+                        CibilScore =
+                        score,
 
-                    CheckDate =
-                    DateTime.Now
-                }
+                        CheckDate =
+                        DateTime.Now
+                    }
 
                 );
             }
 
-            await _context
-            .SaveChangesAsync();
+            await context
+                .SaveChangesAsync();
 
             return score;
         }
 
-        public async Task<List<Customer>>
+        public Task<List<Customer>>
         GetAllCustomersAsync()
         {
-            return await _context.Customers
-
+            return context.Customers
                 .Include(
                     x =>
                     x.CibilReport
                 )
-
                 .ToListAsync();
         }
     }

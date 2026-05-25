@@ -1,10 +1,6 @@
-using LOS.Data;
 using LOS.Interfaces;
-using LOS.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace LOS.Controllers
 {
@@ -12,21 +8,23 @@ namespace LOS.Controllers
     public class CustomerController : Controller
     {
         private readonly ICustomerService customerService;
-        private readonly ApplicationDbContext _context;
 
-        public CustomerController(ICustomerService service, ApplicationDbContext context)
+        public CustomerController(ICustomerService service)
         {
             customerService = service;
-            _context = context;
+        }
+
+        private int GetCustomerId()
+        {
+            var idClaim = User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+            return int.TryParse(idClaim, out int id) ? id : 0;
         }
 
         public IActionResult Profile()
         {
             int customerId = GetCustomerId();
 
-            var customer = _context.Customers
-                .Include(c => c.CibilReport)
-                .FirstOrDefault(c => c.CustomerId == customerId);
+            var customer = customerService.GetByIdWithCibil(customerId);
 
             if (customer == null)
                 return RedirectToAction("Login", "Auth");
@@ -40,19 +38,11 @@ namespace LOS.Controllers
             return View(customer);
         }
 
-        private int GetCustomerId()
-        {
-            var idClaim = User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-            return int.TryParse(idClaim, out int id) ? id : 0;
-        }
-
         public IActionResult Kyc()
         {
             int customerId = GetCustomerId();
 
-            var customer = _context.Customers
-                .Include(c => c.KYCDocument)
-                .FirstOrDefault(c => c.CustomerId == customerId);
+            var customer = customerService.GetById(customerId);
 
             if (customer == null)
             {

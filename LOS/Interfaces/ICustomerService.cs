@@ -13,5 +13,6 @@ namespace LOS.Interfaces
         void Update(Customer customer);
         void SaveOtp(string email, string otp);
         bool VerifyOtp(string email, string otp);
+        Customer GetByIdWithCibil(int customerId);
     }
 }

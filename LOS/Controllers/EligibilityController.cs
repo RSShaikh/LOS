@@ -6,25 +6,25 @@ namespace LOS.Controllers
 {
     public class EligibilityController : Controller
     {
-        private readonly IEligibilityService _service;
+        private readonly IEligibilityService Eservice;
 
         public EligibilityController(IEligibilityService service)
         {
-            _service = service;
+            Eservice = service;
         }
 
-        // INDEX
+
         public IActionResult EIndex()
         {
-            var data = _service.GetEligibilityResults();
+            var data = Eservice.GetEligibilityResults();
             return View(data);
         }
 
-        // APPROVE POST (directly from EIndex inline form)
+
         [HttpPost]
         public IActionResult Approve(EligibilityResult model)
         {
-            _service.UpdateEligibility(
+            Eservice.UpdateEligibility(
                 model.EligibilityId,
                 true,
                 null
@@ -33,11 +33,11 @@ namespace LOS.Controllers
             return RedirectToAction("EIndex");
         }
 
-        // REJECT POST (from EIndex modal form)
+
         [HttpPost]
         public IActionResult Reject(EligibilityResult model)
         {
-            _service.UpdateEligibility(
+            Eservice.UpdateEligibility(
                 model.EligibilityId,
                 false,
                 model.RejectionReason
